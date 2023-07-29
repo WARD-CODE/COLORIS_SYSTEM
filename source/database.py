@@ -16,6 +16,9 @@ def retrieve_data():
         
         return data_list
 
+def mod_data(name):
+    with open("programmes.csv", 'a',newline='') as f:
+        csv_writer = csv.writer(f)
 
             
             
