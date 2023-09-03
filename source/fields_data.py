@@ -29,6 +29,5 @@ class Fields(tk.Frame):
     def del_value(self):
         current_text = self.en.get()
         new_text = current_text[:-1]  # Remove the last character
-        self.en.delete(tk.END, 0)       # Clear the entry
-        self.en.insert(0, new_text)
-        print(self.en.get())
+        self.en.delete(0, tk.END)       # Clear the Entry
+        self.en.insert(0, new_text)     # Insert the new text

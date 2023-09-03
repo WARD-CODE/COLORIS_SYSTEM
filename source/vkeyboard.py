@@ -38,10 +38,10 @@ class VkeyBoard(tk.Toplevel):
                     
                     self.keys.append(tk.Button(master=self.letters_frame,
                                 text=lists[k],
-                                font=('Arial',13,"bold"),
+                                font=('Arial',18,"bold"),
                                 background="white",
                                 relief="groove",
-                                command=lambda :self.delete_caract,
+                                command=self.delete_caract,
                                 width=2,
                                 height=1)
                                 )
@@ -49,7 +49,7 @@ class VkeyBoard(tk.Toplevel):
                 else:
                     self.keys.append(tk.Button(master=frames,
                                                 text=lists[k],
-                                                font=('Arial',13,"bold"),
+                                                font=('Arial',18,"bold"),
                                                 background="white",
                                                 relief="groove",
                                                 command=lambda c=lists[k]:self.insert_caract(c),

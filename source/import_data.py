@@ -12,15 +12,10 @@ class ImportWindow(tk.Toplevel):
     _PROGRAM_DATA = None
     _SELECTED_PROGRAM_NAME = None
     _SELECTED_PROGRAM = None
-    _instance = None 
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(ImportWindow, cls).__new__(cls)
-        return cls._instance
+    _SELECTED_TIMERS=None
 
     
-    def __init__(self):
+    def __init__(self, main_wind):
         super().__init__()
         self.geometry("700x400+502+352")
         self.resizable(True, False)
@@ -29,8 +24,10 @@ class ImportWindow(tk.Toplevel):
         self.maxsize(685, 570)
         self.components = {}
         self.keyboard= VkeyBoard(self)
+        self.main_wind = main_wind
         self.focused_entry=None
         self.focused_entry_old = None
+        
         self.init_components()
         self.disp_components()
         self.proglist_init()
@@ -65,7 +62,7 @@ class ImportWindow(tk.Toplevel):
         self.components["date"].bind("<FocusIn>", lambda event: self.zone_clicked(self.components["date"]))
 
         for h in range(1,11):
-            self.components["C{}".format(h)] = Fields(master=self.components["temp_frame"],text = "C{}".format(h),dim=7)
+            self.components["C{}".format(h)] = Fields(master=self.components["temp_frame"],text = "C{}".format(h),dim=8)
 
         self.components["C1".format(h)].bind("<FocusIn>", lambda event: self.zone_clicked(self.components["C1".format(h)]))
         self.components["C2".format(h)].bind("<FocusIn>", lambda event: self.zone_clicked(self.components["C2".format(h)]))
@@ -78,9 +75,10 @@ class ImportWindow(tk.Toplevel):
         self.components["C9".format(h)].bind("<FocusIn>", lambda event: self.zone_clicked(self.components["C9".format(h)]))
         self.components["C10".format(h)].bind("<FocusIn>", lambda event: self.zone_clicked(self.components["C10".format(h)]))
 
-        self.components["Ajouter"] = tk.Button(master=self.components["frame_2"], text="Ajouter",font=("Arial",11,"bold"), width=7, height=1,background="#51B8F9",command=self.on_ajouter) 
-        self.components["Modefier"] = tk.Button(master=self.components["frame_2"], text="Modefier",font=("Arial",11,"bold"), width=7, height=1,background="#51B8F9",command=self.on_modefier) 
+        self.components["Ajouter"] = tk.Button(master=self.components["frame_2"], text="Ajouter",font=("Arial",12,"bold"), width=7, height=1,background="#51B8F9",command=self.on_ajouter) 
         self.components["clavier"] = tk.Button(master=self.components["frame_2"], width=70, height=40,relief='groove',background="white") 
+        self.components["valider"] = tk.Button(master=self, text="Valider",font=("Arial",12,"bold"), width=7, height=1,background="#51B8F9",command=self.on_valid) 
+
         image = Image.open("images/clavier.png").resize((40, 40))
         self.components["clavier"].image = ImageTk.PhotoImage(image)
         self.components["clavier"].configure(image=self.components["clavier"].image)  
@@ -108,8 +106,8 @@ class ImportWindow(tk.Toplevel):
         self.components["C9"].grid(row=4, column=2, pady=4)
         self.components["C10"].grid(row=5, column=0, pady=4)
 
-        self.components["Ajouter"].place(relx=0.32, rely=0.84)
-        self.components["Modefier"].place(relx=0.55, rely=0.84)
+        self.components["Ajouter"].place(relx=0.32, rely=0.77)
+        self.components["valider"].place(relx=0.85, rely=0.02)
         self.components["clavier"].place(relx=0.78, rely=0.025)
         self.components["title"].place(relx=0.03, rely=0.03)
         self.components["date"].place(relx=0.025, rely=0.15)
@@ -141,12 +139,9 @@ class ImportWindow(tk.Toplevel):
                 return False
 
             return True
-
-    def on_modefier(self):
-        print(self.focus_get())
     
     def on_choisir(self):
-
+        
         cur_index = self.PROG_LIST.curselection()
         for i in range(self.PROG_LIST.size()):
             self.PROG_LIST.itemconfig(i, {'bg': 'white'})
@@ -176,7 +171,25 @@ class ImportWindow(tk.Toplevel):
             
             add_data(sequence)
             self.proglist_init()
+    
+    def on_valid(self):
+        if self._SELECTED_PROGRAM:
 
+            self._SELECTED_TIMERS = retrieve_data(self._SELECTED_PROGRAM_NAME)
+            self.main_wind.CONT1_TIME.configure(text=self._SELECTED_TIMERS[0], font=('Arial',12,'bold'))
+            self.main_wind.CONT2_TIME.configure(text=self._SELECTED_TIMERS[1], font=('Arial',12,'bold'))
+            self.main_wind.CONT3_TIME.configure(text=self._SELECTED_TIMERS[2], font=('Arial',12,'bold'))
+            self.main_wind.CONT4_TIME.configure(text=self._SELECTED_TIMERS[3], font=('Arial',12,'bold'))
+            self.main_wind.CONT5_TIME.configure(text=self._SELECTED_TIMERS[4], font=('Arial',12,'bold'))
+            self.main_wind.CONT6_TIME.configure(text=self._SELECTED_TIMERS[5], font=('Arial',12,'bold'))
+            self.main_wind.CONT7_TIME.configure(text=self._SELECTED_TIMERS[6], font=('Arial',12,'bold'))
+            self.main_wind.CONT8_TIME.configure(text=self._SELECTED_TIMERS[7], font=('Arial',12,'bold'))
+            self.main_wind.CONT9_TIME.configure(text=self._SELECTED_TIMERS[8], font=('Arial',12,'bold'))
+            self.main_wind.CONT10_TIME.configure(text=self._SELECTED_TIMERS[9], font=('Arial',12,'bold'))
+            self.destroy()
+            
+
+    
     def scroll_up(self):
         self.PROG_LIST.yview_scroll(-1, "units")
 
@@ -185,10 +198,9 @@ class ImportWindow(tk.Toplevel):
 
 
     def proglist_init(self):
-        self._PROGRAM_DATA = retrieve_data()
+        self._PROGRAM_DATA = retrieve_data("ALL")
         self.PROG_LIST.delete(0,tk.END)
         for row in self._PROGRAM_DATA:
             self.PROG_LIST.insert(tk.END,row[0])
-
 
     
