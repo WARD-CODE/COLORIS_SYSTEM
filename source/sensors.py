@@ -1,7 +1,7 @@
 
 
 import os
-import time
+import subprocess
 
 class PositionSensor:
 
@@ -11,7 +11,7 @@ class PositionSensor:
         os.system("gpio mode {} in".format(self.pin))
 
     def read(self):
-        os.system("gpio read {}".format(self.pin))
+        return int(subprocess.check_output("gpio read {}".format(self.pin), shell = True).decode("utf-8").strip())
 
 class InSensor(PositionSensor):
     def __init__(self,PIN):

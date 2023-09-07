@@ -1,21 +1,18 @@
 #! /usr/bin/env python3
 # # -*- coding: utf-8 -*-
 
-from pickle import FALSE
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-from source.fields_data import Fields
 from source.import_data import ImportWindow
 from datetime import datetime,time ,timedelta
 import time as tm
 
-# from motors_prog import Motor
-# from sensors import PositionSensor, InSensor, OutSensor
+from motors_prog import Motor
+from sensors import PositionSensor, InSensor, OutSensor
 
 class COLORISsystem(tk.Tk):
     _MACHINE_STAT = None #STOP or INWORK
-
 
     def __init__(self,*args, **kwargs):             
         super().__init__(*args,**kwargs)
@@ -31,11 +28,11 @@ class COLORISsystem(tk.Tk):
 
         
         #hard init
-        # self.M1 = Motor(2,1,200)
-        # self.M2 = Motor(4,3, 200)
-        # self.SP = PositionSensor(6)
-        # self.SI = InSensor(9)
-        # self.SOut = OutSensor(10)
+        self.M1 = Motor(4,3,200)
+        self.M2 = Motor(7,5, 200)
+        self.SP = PositionSensor(2)
+        self.SI = InSensor(0)
+        self.SOut = OutSensor(1)
 
         #flags
         
@@ -59,17 +56,11 @@ class COLORISsystem(tk.Tk):
         self.DATE_TIME_ROUTINE()
         self.FAN_ROUTINE()
 
-    def in_position(self):
-        self.posit = True
-    
-    def in_home(self):
-        self.atHome = True
-        self.CONTIN_LABEL.configure(background="red")
-        self.CONTOUT_LABEL.configure(background="#EFEFEF")
+        
 
     def in_end(self):
         self.atEnd = True
-        self.CONTOUT_LABEL.configure(background="red")
+        
     
     def stop_machine(self):
         self._MACHINE_STAT = False
@@ -117,71 +108,70 @@ class COLORISsystem(tk.Tk):
                 tm.sleep(1)
                 self.GOHOME_ROUTINE()
                 self._MACHINE_STAT = False
+                self.sensor_position = 0
                 return
   
         self.after(1000, self.start_machine)   
 
     def PICK_UP_ROUTINE(self):
         print("PICK UP ROUTINE")
-        # self.M2.forward(self.M2.FORWARD_VERTICAL_REV)
-        # tmleep(0.02)
-        # self.M2.forward(self.M2.PICK_REV)
-        # tmleep(0.02)
-        # self.M2.forward(self.M2.BACKWARD_VERTICAL_REV)
+        self.M2.forward(self.M2.FORWARD_VERTICAL_REV)
+        tm.sleep(0.02)
+        self.M2.forward(self.M2.PICK_REV)
+        tm.sleep(0.02)
+        self.M2.forward(self.M2.BACKWARD_VERTICAL_REV)
 
     def DROP_DOWN_ROUTINE(self):
         print("DROP DOWN ROUTINE")
-        # self.M2.forward(self.M2.FORWARD_VERTICAL_REV)
-        # tmleep(0.02)
-        # self.M2.backward(self.M2.PICK_REV)
-        # tmleep(0.02)
-        # self.M2.forward(self.M2.BACKWARD_VERTICAL_REV)
+        self.M2.forward(self.M2.FORWARD_VERTICAL_REV)
+        tm.sleep(0.02)
+        self.M2.backward(self.M2.PICK_REV)
+        tm.sleep(0.02)
+        self.M2.forward(self.M2.BACKWARD_VERTICAL_REV)
 
     def GOHOME_ROUTINE(self):
         print("GO HOME")
-        # if not self.SI.read() and self.SOut.read():
-        #     self.M1.backward(self.M1.HOME_HORIZONTAL_REV)
+        if not self.SI.read() and self.SOut.read():
+            self.M1.backward(self.M1.HOME_HORIZONTAL_REV)
         
-        # elif not self.SI.read() and not self.SOut.read():
-        #     self.M1.backward(self.M1.BACKWARD_HORIZONTAL_REV * self.SP.sensor_position)
+        elif not self.SI.read() and not self.SOut.read():
+            self.M1.backward(self.M1.BACKWARD_HORIZONTAL_REV * self.SP.sensor_position)
 
     def CHECK_HOME(self):
-        if self.atHome:
-        # if self.SI.read():
+        if self.SI.read() and self.atHome:
+            self.CONTIN_LABEL.configure(background="red")
+            self.CONTOUT_LABEL.configure(background="#EFEFEF")
             return True
+        self.CONTIN_LABEL.configure(background="#EFEFEF")
         return False
 
     def CHECK_ARRIVE(self):
-        if self.atEnd:
-        # if self.SI.read():
+        if self.SOut.read() and self.atEnd:
+            self.CONTOUT_LABEL.configure(background="red")
+            self.CONTIN_LABEL.configure(background="#EFEFEF")
             return True
+        self.CONTOUT_LABEL.configure(background="#EFEFEF")
         return False
-        # if self.SOut.read():
-        #     return True
-        # return False
     
     def CHECK_POSITION(self):
-        if self.posit:
+            
+        if self.SP.read() and self.posit:
             self.sensor_position += 1
-        # if self.SP.read():
             return True
         return False
 
     def FALLOUT_ROUTINE(self):
-        print("FALLOUT ROUTINE")
-        # self.M2.forward(self.M2.FORWARD_VERTICAL_REV*5)
+        self.M2.forward(self.M2.FORWARD_VERTICAL_REV*5)
         self.current_ind = self.timers_ind[self.sensor_position-1]
         self.current_ind.configure(background="red")
         tm.sleep(1)
         self.start_timers()
 
     def LIFT_ROUTINE(self):
-        print("LIFT ROUTINE")
-        # self.M2.backward(self.M2.BACKWARD_VERTICAL_REV*5)
+        self.M2.backward(self.M2.BACKWARD_VERTICAL_REV*5)
 
     def FORWARD_ROUTINE(self):
-        print("FORWARD ROUTINE")
-        # self.M1.forward(self.M1.FORWARD_HORIZONTAL_REV*20)
+        self.M1.forward(self.M1.FORWARD_HORIZONTAL_REV*20)
 
     def TEMPERATURE_ROUTINE(self):
         pass
@@ -307,21 +297,18 @@ class COLORISsystem(tk.Tk):
         self.CONT1_BUT.configure(relief='groove')
         self.CONT1_BUT.configure(background="#ADD5EE")
         self.CONT1_BUT.configure(text='''1''')
-        self.CONT1_BUT.configure(command = self.in_home)
 
         self.CONT2_BUT = tk.Button(self.Frame1_2, font=("Arial",20,"bold"))
         self.CONT2_BUT.configure(relief='groove')
         self.CONT2_BUT.place(relx=0.1, rely=0.047, height=75,width=50)
         self.CONT2_BUT.configure(background="#ADD5EE")
         self.CONT2_BUT.configure(text='''2''')
-        self.CONT2_BUT.configure(command = self.in_position)
 
         self.CONT3_BUT = tk.Button(self.Frame1_2, font=("Arial",20,"bold"))
         self.CONT3_BUT.configure(relief='groove')
         self.CONT3_BUT.place(relx=0.188, rely=0.047, height=75,width=50)
         self.CONT3_BUT.configure(background="#ADD5EE")
         self.CONT3_BUT.configure(text='''3''')
-        self.CONT3_BUT.configure(command = self.in_end)
 
         self.CONT4_BUT = tk.Button(self.Frame1_2, font=("Arial",20,"bold"))
         self.CONT4_BUT.configure(relief='groove')
