@@ -8,19 +8,19 @@ class PositionSensor:
     def __init__(self, PIN):
         self.pin = PIN
         self.sensor_position = 0
-        os.system("gpio mode {} in".format(self.pin))
+        os.system("gpio mode {} in".format(str(self.pin)))
 
     def read(self):
         return int(subprocess.check_output("gpio read {}".format(self.pin), shell = True).decode("utf-8").strip())
 
 class InSensor(PositionSensor):
     def __init__(self,PIN):
-        super.__init__(PIN)
+        super().__init__(PIN)
 
 
 class OutSensor(PositionSensor):
     def __init__(self,PIN):
-        super.__init__(PIN)
+        super().__init__(PIN)
 
 class UpSensor:
     pass

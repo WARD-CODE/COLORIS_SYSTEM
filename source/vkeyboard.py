@@ -1,16 +1,20 @@
 import tkinter as tk
 import string
+from PIL import Image, ImageTk
 
 class VkeyBoard(tk.Toplevel):
     
     def __init__(self, main_wind):
         super().__init__(
-                        width = 250,
-                        height = 200,
+                        width = 500,
+                        height = 300,
                         )
         
+        self.resizable(False,False)        
         self.title("CLAVIER VIRTUEL")
         self.keys = []
+        self.overrideredirect(True)
+        self.attributes('-topmost',1)
         self.list_caracters = []
         self.list_letters = []
         self.main_wind = main_wind
@@ -23,7 +27,7 @@ class VkeyBoard(tk.Toplevel):
     def init_components(self):
         self.letters_frame = tk.Frame(master=self)
         self.caracters_frame =tk.Frame(master=self)
-        self.list_letters = ['a','z','e','r','t','y','u','i','o','p','q','s','d','f','g','h','j','k','l','m','w','x','c','v','b','n',':',' ','<--']
+        self.list_letters = ['a','z','e','r','t','y','u','i','o','p','q','s','d','f','g','h','j','k','l','m','w','x','c','v','b','n',':',' ','<--','hide']
         
         self.list_caracters = ['1','2','3','4','5','6','7','8','9','0','.','/']
 
@@ -38,23 +42,47 @@ class VkeyBoard(tk.Toplevel):
                     
                     self.keys.append(tk.Button(master=self.letters_frame,
                                 text=lists[k],
-                                font=('Arial',18,"bold"),
+                                font=('Arial',20,"bold"),
                                 background="white",
                                 relief="groove",
                                 command=self.delete_caract,
-                                width=2,
-                                height=1)
+                                width=50,
+                                height=60)
                                 )
+                    
+                    image = Image.open("images/left.png")
+                    self.keys[k].image = ImageTk.PhotoImage(image)
+                    self.keys[k].configure(image=self.keys[k].image)
+                    self.keys[k].configure(text="")
+
+                elif lists[k] == "hide":
+                    
+                    self.keys.append(tk.Button(master=self.letters_frame,
+                                text=lists[k],
+                                font=('Arial',20,"bold"),
+                                background="white",
+                                relief="groove",
+                                command=self.hide_keyboard,
+                                width=50,
+                                height=60)
+                                )
+                    
+                    image = Image.open("images/manual.png")
+                    self.keys[k].image = ImageTk.PhotoImage(image)
+                    self.keys[k].configure(image=self.keys[k].image)
+                    self.keys[k].configure(text="")
+
+        
                     continue
                 else:
                     self.keys.append(tk.Button(master=frames,
                                                 text=lists[k],
-                                                font=('Arial',18,"bold"),
+                                                font=('Arial',20,"bold"),
                                                 background="white",
                                                 relief="groove",
                                                 command=lambda c=lists[k]:self.insert_caract(c),
                                                 width=2,
-                                                height=1)
+                                                height=2)
                                                 )
             frames = self.caracters_frame
 
@@ -85,4 +113,11 @@ class VkeyBoard(tk.Toplevel):
     
     def delete_caract(self):
         self.main_wind.focused_entry.del_value()
+
+    def hide_keyboard(self):
+        self.destroy()
+        
+    def show_keyboard(self):
+        self.geometry("+{a}+{b}".format(a =10,b = 400))
+
       
