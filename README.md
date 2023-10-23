@@ -43,11 +43,11 @@ in our case we used Jumpers for wiring and 12V power supply with a converter to 
 we worked with a 5 inch Screen touch which is flexible and has a nice view.
 
 #### Python Modules and Packages:
+create a virtual envirennement and install the following modules
 1 - Tkinter library
 2 - Pillow library
 3 - Threading library
 4 - datetime library
 5 - CSV library
 6 - Os and subprocess Library
-and others...
 
